@@ -7,6 +7,19 @@
 
 A dead simple JWT library.
 
+# Usage
+## Encode
+```
+from simplejwt import encode
+token = encode('secret', {'my_payload': 'some_data'}, 'HS256')
+```
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| `secret` | `str` | *N/A* | The secret used to create the token. |
+| `payload` | `dict` | *N/A* | The payload data contained within the token. |
+| `alg` | `int` | `HS256` | The algorithm to use to create the token. |
+
 # Running tests
 ## Install the package with test dependencies
 `pip install -e ".[test]"`
