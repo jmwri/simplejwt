@@ -1,0 +1,30 @@
+env:
+  global:
+  - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct;
+    else git log -1 --skip 1 --pretty=format:%ct; fi)
+  matrix:
+    secure: kw3cACWYHhcl95/BsIicqnodmshKxn2KIHKoYLBPNGGAdZYTn4Qm1KOBciACyGWMlGn8M0Y46cO0FRgHShs0bNb6IRuxwuEZLwkPUYH4J1DuUp0LTWLYs/J/1y37dNpr8tPh0r38GfVaD9JkjRsTyGEKbDEQPSGQ4CL2PJbTEuZI2Wf39CyNdZtE2a5+Q/z9h7w5LQBylxQcuyoiqO/CU2DKE1e3u5fLL5vvKf9pRQUnAm8Y+B1jMTDLgLzB+o9qT1dOY738a9lv3OhxLcYdaHxcZtgXVbXZRBYqdXRnIDNV6AAlfkPEYQ/fI381pz+b1pcOiFilYOuVfAlICJan9MQ/U9D5+mHALkvdxOo7rKsiRa/Rt7xT3m7izGBlQlNgzF5WWgAfkAoyBJkl/IYf6sjdJJnA+Oz8nFIrSlTlpcga/gCF1kIs5vbQyQ6vhoy8cFOMw1Lt195ZoXMD3kZ0BSvNye88QCm5+qABBe/nxOK05TAo4EZ1d3qNxD7UB8H/nDJaNYZ+1YNBRteCo7MCjNFOJYfKcxkIpD4W2Zz0jXIvYR9Q2FyGlUSETVjRyDeiNdJfycLht8N+iGxylP8lw9fkBOP2ijKUKriOPcstdnXuHTfBvXKEwIXjf8RqQ4ZjG8KH6sQ+X03hAGtVbX69vdDrBpvnn5nMXqD4TJdNGNg=
+language: python
+python:
+- '3.6'
+install:
+- pip install -e ".[test]"
+before_script:
+- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+  > ./cc-test-reporter
+- chmod +x ./cc-test-reporter
+- "./cc-test-reporter before-build"
+script:
+- tox
+after_script:
+- coverage xml
+- if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build -t
+  "coverage.py" --exit-code $TRAVIS_TEST_RESULT; fi
+deploy:
+  provider: pypi
+  user: jmwri
+  password:
+    secure: CmPgSpWE9ehCkCMrmoTe+0cHTia1xkour9CL6Nx8du90jMZhE0fcE8zGTXFZZZI8fxB0VUfirGCc1jdBGKJA1f4P8S5EpRT1ixG/APDjBxb46OQqEEh4hXrotCRxrLsdpB+tJOsTQ/EP0Q8Ajds/yJzpAtsJTzR6PgWU8ZYVhsZNp0MW/nFvNPCMHjKHkVLs6RCrY3dpl5+7szy5u8DqJpFOtQfUJlNO6OibCHgk9N4oHe6bI6WHoDNNImGXf0PqE7HWy7/1CHT4Yf3wPliBRFidN5NnQB8mzlIBnKcM+rVmGhTvn4I0vqhOWRrAZ+6VxRiTsnjxq+6xp8Yh0LoGc3gvOK/NrNK1xNsrLFQtUqM4J/IrsUlaiO5DnBKoHCq3Ri9nacl2XRXOEV7Ja4cF97n/pvABv93LapTkST/VnrkhMkrrv52dX+yU9JNoC5t2CxceVh9scMQXnjo4fpWXEesXZpe8gTmbaXptwagKMfJi06Cc009RyMISrNebRPnFE3Skpz9JGR7UVN0fUOTOzomxD3Ub2jRS25c6YYYRGSkcNPNHrAsI56KeKK7L4teMEcbHz4NP3oi8BKIsV+oTy00yfTI8s7URvWK4cPFip/EC3w/13v9EoDXPT8WWYMYl8pLT7Rq6PIuOt6APukmABsLwWO3ffxIUEeCvZix4YuY=
+  on:
+    tags: true
+    branch: master
