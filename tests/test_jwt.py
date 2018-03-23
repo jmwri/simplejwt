@@ -9,24 +9,6 @@ test_tokens = {
 }
 
 
-def test_b64_encode():
-    assert jwt.b64_encode(b'test') == b'dGVzdA'
-
-
-def test_to_bytes():
-    assert jwt.to_bytes('test') == b'test'
-    assert jwt.to_bytes(b'test') == b'test'
-
-
-def test_from_bytes():
-    assert jwt.from_bytes('test') == 'test'
-    assert jwt.from_bytes(b'test') == 'test'
-
-
-def test_join():
-    assert jwt.join(b'a', b'b', b'c', b'd') == b'a.b.c.d'
-
-
 def test_get_algorithm_hs256():
     assert jwt.get_algorithm('HS256') is hashlib.sha256
 
