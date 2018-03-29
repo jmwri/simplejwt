@@ -1,5 +1,5 @@
 from typing import Union
-from base64 import urlsafe_b64encode
+from base64 import urlsafe_b64encode, urlsafe_b64decode
 
 
 def b64_encode(data: bytes):
@@ -8,6 +8,13 @@ def b64_encode(data: bytes):
     """
     encoded = urlsafe_b64encode(data)
     return encoded.replace(b'=', b'')
+
+
+def b64_decode(data: bytes):
+    missing_padding = len(data) % 4
+    if missing_padding != 0:
+        data += b'=' * (4 - missing_padding)
+    return urlsafe_b64decode(data)
 
 
 def to_bytes(data: Union[str, bytes]):

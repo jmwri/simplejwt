@@ -5,6 +5,10 @@ def test_b64_encode():
     assert util.b64_encode(b'test') == b'dGVzdA'
 
 
+def test_b64_decode():
+    assert util.b64_decode(b'dGVzdA') == b'test'
+
+
 def test_to_bytes():
     assert util.to_bytes('test') == b'test'
     assert util.to_bytes(b'test') == b'test'

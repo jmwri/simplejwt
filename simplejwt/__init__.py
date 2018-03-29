@@ -1,1 +1,1 @@
-from simplejwt.jwt import encode
+from simplejwt.jwt import encode, decode

@@ -4,6 +4,7 @@ import hmac
 import hashlib
 
 from simplejwt import util
+from simplejwt.exception import InvalidSignatureError
 
 algorithms = {
     'HS256': hashlib.sha256
@@ -37,3 +38,23 @@ def encode(secret: Union[str, bytes], payload: dict, alg='HS256'):
 
     token = util.join(pre_signature, signature_b64)
     return util.from_bytes(token)
+
+
+def decode(secret: Union[str, bytes], token: Union[str, bytes], alg='HS256'):
+    secret = util.to_bytes(secret)
+    token = util.to_bytes(token)
+    pre_signature, signature_segment = token.rsplit(b'.', 1)
+    payload_b64 = pre_signature.split(b'.', 1)[1]
+    payload_json = util.b64_decode(payload_b64)
+    payload = json.loads(util.from_bytes(payload_json))
+    signature = util.b64_decode(signature_segment)
+    algorithm = get_algorithm(alg)
+    calculated_signature = hmac \
+        .new(secret, msg=pre_signature, digestmod=algorithm) \
+        .digest()
+
+    if not hmac.compare_digest(signature, calculated_signature):
+        raise InvalidSignatureError('Invalid signature')
+    if not isinstance(payload, dict):
+        raise RuntimeError('Invalid payload: {}'.format(payload))
+    return payload

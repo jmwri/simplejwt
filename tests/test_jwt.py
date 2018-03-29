@@ -1,6 +1,8 @@
-from simplejwt import jwt
 import pytest
 import hashlib
+
+from simplejwt import jwt
+from simplejwt.exception import InvalidSignatureError
 
 test_tokens = {
     'HS256': 'eyJ0eXBlIjogIkpXVCIsICJhbGciOiAiSFMyNTYifQ.'
@@ -36,3 +38,44 @@ def test_encode():
             token_data['payload'],
             alg
         ) == token
+
+
+def test_decode():
+    token_data = {
+        'secret': 'super_secret',
+        'payload': {
+            'testing': True
+        }
+    }
+    for alg, token in test_tokens.items():
+        assert jwt.decode(
+            token_data['secret'],
+            token,
+            alg
+        ) == token_data['payload']
+
+
+def test_decode_invalid_signature():
+    token_data = {
+        'secret': 'super_secret',
+        'payload': {
+            'testing': True
+        }
+    }
+    for alg, token in test_tokens.items():
+        with pytest.raises(InvalidSignatureError):
+            jwt.decode(
+                token_data['secret'],
+                token + 'extra',
+                alg
+            )
+
+
+def test_decode_invalid_payload():
+    token_data = {
+        'secret': 'super_secret',
+        'payload': 'should be dict'
+    }
+    token = jwt.encode(token_data['secret'], token_data['payload'])
+    with pytest.raises(RuntimeError):
+        jwt.decode(token_data['secret'], token)
