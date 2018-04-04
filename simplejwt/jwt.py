@@ -26,6 +26,28 @@ def _hash(secret: bytes, data: bytes, alg: str) -> bytes:
         .digest()
 
 
+def make(secret: Union[str, bytes], payload: dict, alg='HS256',
+         issuer: str = None, subject: str = None, audience: str = None,
+         valid_to: int = None, valid_from: int = None, issued_at: int = None,
+         id: str = None):
+    new_payload = payload.copy()
+    if issuer and 'iss' not in new_payload:
+        new_payload['iss'] = issuer
+    if subject and 'sub' not in new_payload:
+        new_payload['sub'] = subject
+    if audience and 'aud' not in new_payload:
+        new_payload['aud'] = audience
+    if valid_to and 'exp' not in new_payload:
+        new_payload['exp'] = valid_to
+    if valid_from and 'nbf' not in new_payload:
+        new_payload['nbf'] = valid_from
+    if issued_at and 'iat' not in new_payload:
+        new_payload['iat'] = issued_at
+    if id and 'jti' not in new_payload:
+        new_payload['jti'] = id
+    return encode(secret, new_payload, alg)
+
+
 def encode(secret: Union[str, bytes], payload: dict, alg='HS256'):
     secret = util.to_bytes(secret)
 

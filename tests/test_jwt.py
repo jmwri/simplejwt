@@ -25,6 +25,26 @@ test_token_data = {
     }
 }
 
+registered_claims = {
+    'issuer': 'iss',
+    'subject': 'sub',
+    'audience': 'aud',
+    'valid_to': 'exp',
+    'valid_from': 'nbf',
+    'issued_at': 'iat',
+    'id': 'jti',
+}
+
+test_registered_claims = {
+    'issuer': 'test_issuer',
+    'subject': 'test_subject',
+    'audience': 'test_audience',
+    'valid_to': 789,
+    'valid_from': 456,
+    'issued_at': 123,
+    'id': 'test_id',
+}
+
 
 def test_get_algorithm_hs256():
     assert jwt.get_algorithm('HS256') is hashlib.sha256
@@ -61,6 +81,31 @@ def test_encode():
             token_data['payload'],
             alg
         ) == token
+
+
+def test_make_claims():
+    for name, abb in registered_claims.items():
+        args = {
+            'secret': test_token_data['secret'],
+            'payload': test_token_data['payload'],
+            name: test_registered_claims[name]
+        }
+        token = jwt.make(**args)
+        payload = jwt.decode(test_token_data['secret'], token)
+        assert payload[abb] == test_registered_claims[name]
+
+
+def test_make_precedence():
+    token = jwt.make(test_token_data['secret'], {'iss': 'usr_defined_iss'},
+                     issuer='my_iss')
+    payload = jwt.decode(test_token_data['secret'], token)
+    assert payload['iss'] == 'usr_defined_iss'
+
+
+def test_make_leaves_payload_unmodified():
+    payload = {'my': 'payload'}
+    jwt.make(test_token_data['secret'], payload, issuer='my_iss')
+    assert payload == {'my': 'payload'}
 
 
 def test_decode():
