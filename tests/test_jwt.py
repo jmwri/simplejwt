@@ -96,10 +96,10 @@ def test_make_claims():
 
 
 def test_make_precedence():
-    token = jwt.make(test_token_data['secret'], {'iss': 'usr_defined_idd'},
+    token = jwt.make(test_token_data['secret'], {'iss': 'usr_defined_iss'},
                      issuer='my_iss')
     payload = jwt.decode(test_token_data['secret'], token)
-    assert payload['iss'] == 'usr_defined_idd'
+    assert payload['iss'] == 'usr_defined_iss'
 
 
 def test_decode():
