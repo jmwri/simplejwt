@@ -102,6 +102,12 @@ def test_make_precedence():
     assert payload['iss'] == 'usr_defined_iss'
 
 
+def test_make_leaves_payload_unmodified():
+    payload = {'my': 'payload'}
+    jwt.make(test_token_data['secret'], payload, issuer='my_iss')
+    assert payload == {'my': 'payload'}
+
+
 def test_decode():
     for alg, token in test_tokens.items():
         assert jwt.decode(
