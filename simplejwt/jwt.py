@@ -26,7 +26,7 @@ def _hash(secret: bytes, data: bytes, alg: str) -> bytes:
         .digest()
 
 
-def make(secret: Union[str, bytes], payload: dict, alg='HS256',
+def make(secret: Union[str, bytes], payload: dict, alg: str = 'HS256',
          issuer: str = None, subject: str = None, audience: str = None,
          valid_to: int = None, valid_from: int = None, issued_at: int = None,
          id: str = None):
@@ -48,7 +48,7 @@ def make(secret: Union[str, bytes], payload: dict, alg='HS256',
     return encode(secret, new_payload, alg)
 
 
-def encode(secret: Union[str, bytes], payload: dict, alg='HS256'):
+def encode(secret: Union[str, bytes], payload: dict, alg: str = 'HS256'):
     secret = util.to_bytes(secret)
 
     header = {
@@ -68,7 +68,8 @@ def encode(secret: Union[str, bytes], payload: dict, alg='HS256'):
     return util.from_bytes(token)
 
 
-def decode(secret: Union[str, bytes], token: Union[str, bytes], alg='HS256'):
+def decode(secret: Union[str, bytes], token: Union[str, bytes],
+           alg: str = 'HS256'):
     secret = util.to_bytes(secret)
     token = util.to_bytes(token)
     pre_signature, signature_segment = token.rsplit(b'.', 1)
