@@ -23,6 +23,30 @@ token = encode('secret', {'my_payload': 'some_data'}, 'HS256')
 | `payload` | `dict` | *N/A* | The payload data contained within the token. |
 | `alg` | `int` | `HS256` | The algorithm to use to create the token. |
 
+## Make
+Returns a new token. This function has arguments for registered claims as specified in [rfc7519](https://tools.ietf.org/html/rfc7519#section-4.1).
+
+Any registered claims provided in the payload will take precedence over any provided as arguments. 
+
+```
+from simplejwt import make
+token = make('secret', {'my_payload': 'some_data'}, 'HS256', issuer='acme', valid_to=1234567)
+# eyJ0eXBlIjogIkpXVCIsICJhbGciOiAiSFMyNTYifQ.eyJteV9wYXlsb2FkIjogInNvbWVfZGF0YSIsICJpc3MiOiAiYWNtZSIsICJleHAiOiAxMjM0NTY3fQ.Nr5IADzsOhlzjxnghquBrRwewg10srDHu__-HN7GGGA
+```
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| `secret` | `str` | *N/A* | The secret used to create the token. |
+| `payload` | `dict` | *N/A* | The payload data contained within the token. |
+| `alg` | `int` | `HS256` | The algorithm to use to create the token. |
+| `issuer` | `str` | `None` | The issuer of the token. |
+| `subject` | `str` | `None` | The subject of the token. |
+| `audience` | `str` | `None` | The audience of the token. |
+| `valid_to` | `int` | `None` | The expiry date of the token as a timestamp. |
+| `valid_from` | `int` | `None` | The date the token is valid from as a timestamp. |
+| `issued_at` | `int` | `None` | The date the token was issued as a timestamp. |
+| `id` | `str` | `None` | The id of the token. |
+
 ## Decode
 Returns the payload from a token.
 
