@@ -102,7 +102,7 @@ class Jwt:
 
     @property
     def issued_at(self):
-        return self.registered_claims.get('iss')
+        return self.registered_claims.get('iat')
 
     @issued_at.setter
     def issued_at(self, issued_at: int):
