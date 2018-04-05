@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 github = 'https://github.com/jmwri/simplejwt'
-version = '0.3.0'
+version = '0.3.1'
 
 setup(
     name='simplejwt',

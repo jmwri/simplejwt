@@ -1,5 +1,6 @@
 import pytest
 import hashlib
+from datetime import datetime
 
 from simplejwt import jwt, util
 from simplejwt.exception import InvalidSignatureError
@@ -23,16 +24,6 @@ test_token_data = {
     'payload': {
         'testing': True
     }
-}
-
-registered_claims = {
-    'issuer': 'iss',
-    'subject': 'sub',
-    'audience': 'aud',
-    'valid_to': 'exp',
-    'valid_from': 'nbf',
-    'issued_at': 'iat',
-    'id': 'jti',
 }
 
 test_registered_claims = {
@@ -84,7 +75,7 @@ def test_encode():
 
 
 def test_make_claims():
-    for name, abb in registered_claims.items():
+    for name, abb in jwt.registered_claims.items():
         args = {
             'secret': test_token_data['secret'],
             'payload': test_token_data['payload'],
@@ -93,6 +84,69 @@ def test_make_claims():
         token = jwt.make(**args)
         payload = jwt.decode(test_token_data['secret'], token)
         assert payload[abb] == test_registered_claims[name]
+
+
+def test_jwt_registered_claims_constructor():
+    for name, abb in jwt.registered_claims.items():
+        args = {
+            'secret': test_token_data['secret'],
+            'payload': test_token_data['payload'],
+            name: test_registered_claims[name]
+        }
+        obj = jwt.Jwt(**args)
+        assert getattr(obj, name) == test_registered_claims[name]
+
+
+def test_jwt_registered_claims():
+    for name, abb in jwt.registered_claims.items():
+        args = {
+            'secret': test_token_data['secret'],
+            'payload': test_token_data['payload'],
+        }
+        obj = jwt.Jwt(**args)
+        setattr(obj, name, test_registered_claims[name])
+        token = obj.encode()
+        payload = jwt.decode(test_token_data['secret'], token)
+        assert getattr(obj, name) == test_registered_claims[name]
+        assert payload[abb] == test_registered_claims[name]
+
+
+def test_jwt_precedence():
+    obj = jwt.Jwt('secret', {'iss': 'usr_defined_iss'}, issuer='my_iss')
+    assert obj.registered_claims['iss'] == 'usr_defined_iss'
+
+
+def test_jwt_decode():
+    for alg, token in test_tokens.items():
+        obj = jwt.Jwt.decode(
+            test_token_data['secret'],
+            token,
+            alg
+        )
+        assert obj.secret == test_token_data['secret']
+        assert obj.alg == alg
+        assert obj.header == {
+            'type': 'JWT',
+            'alg': alg
+        }
+        assert obj.payload == test_token_data['payload']
+
+
+def test_jwt_valid():
+    obj = jwt.Jwt('secret', {}, valid_from=2, valid_to=4)
+    assert not obj.valid(1)
+    assert obj.valid(2)
+    assert obj.valid(3)
+    assert obj.valid(4)
+    assert not obj.valid(5)
+
+
+def test_jwt_valid_current_time():
+    now = int(datetime.utcnow().timestamp())
+    obj = jwt.Jwt('secret', {}, valid_from=now, valid_to=now)
+    assert obj.valid()
+    obj = jwt.Jwt('secret', {}, valid_from=now+1, valid_to=now+1)
+    assert not obj.valid()
 
 
 def test_make_precedence():
@@ -129,6 +183,12 @@ def test_decode_invalid_signature():
                 util.from_bytes(bad_token),
                 alg
             )
+
+
+def test_decode_invalid_header():
+    token = jwt.encode(test_token_data['secret'], header='should be dict')
+    with pytest.raises(RuntimeError):
+        jwt.decode(test_token_data['secret'], token)
 
 
 def test_decode_invalid_payload():

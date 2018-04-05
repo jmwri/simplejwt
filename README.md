@@ -7,6 +7,12 @@
 
 A dead simple JWT library.
 
+# Supported algorithms
+
+* HS256
+* HS384
+* HS512
+
 # Usage
 ## Encode
 Returns a new token.
