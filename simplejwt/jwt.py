@@ -132,14 +132,13 @@ def make(secret: Union[str, bytes], payload: dict, alg: str = default_alg,
     return jwt.encode()
 
 
-def encode(secret: Union[str, bytes], payload: dict, alg: str = default_alg,
-           header: dict = None):
+def encode(secret: Union[str, bytes], payload: dict = None,
+           alg: str = default_alg, header: dict = None):
     secret = util.to_bytes(secret)
 
-    if header:
-        header = header.copy()
-    else:
-        header = {}
+    payload = payload or {}
+    header = header.copy() if header else {}
+
     header.update({
         'type': 'JWT',
         'alg': alg
