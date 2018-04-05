@@ -121,6 +121,13 @@ class Jwt:
     def id(self, id: str):
         self.registered_claims['jti'] = id
 
+    def valid(self, time: int = None):
+        if time < self.valid_from:
+            return False
+        if time > self.valid_to:
+            return False
+        return True
+
     def _pop_claims_from_payload(self):
         claims_in_payload = [k for k in self.payload.keys() if
                              k in registered_claims.values()]

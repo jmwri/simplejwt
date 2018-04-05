@@ -131,6 +131,15 @@ def test_jwt_decode():
         assert obj.payload == test_token_data['payload']
 
 
+def test_jwt_valid():
+    obj = jwt.Jwt('secret', {}, valid_from=2, valid_to=4)
+    assert not obj.valid(1)
+    assert obj.valid(2)
+    assert obj.valid(3)
+    assert obj.valid(4)
+    assert not obj.valid(5)
+
+
 def test_make_precedence():
     token = jwt.make(test_token_data['secret'], {'iss': 'usr_defined_iss'},
                      issuer='my_iss')
