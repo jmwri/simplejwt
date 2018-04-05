@@ -55,6 +55,7 @@ class Jwt:
             self.issued_at = issued_at
         if id:
             self.id = id
+        self._pop_claims_from_payload()
 
     @property
     def issuer(self):
@@ -62,8 +63,7 @@ class Jwt:
 
     @issuer.setter
     def issuer(self, issuer: str):
-        if 'iss' not in self.registered_claims:
-            self.registered_claims['iss'] = issuer
+        self.registered_claims['iss'] = issuer
 
     @property
     def subject(self):
@@ -71,8 +71,7 @@ class Jwt:
 
     @subject.setter
     def subject(self, subject: str):
-        if 'sub' not in self.registered_claims:
-            self.registered_claims['sub'] = subject
+        self.registered_claims['sub'] = subject
 
     @property
     def audience(self):
@@ -80,8 +79,7 @@ class Jwt:
 
     @audience.setter
     def audience(self, audience: str):
-        if 'aud' not in self.registered_claims:
-            self.registered_claims['aud'] = audience
+        self.registered_claims['aud'] = audience
 
     @property
     def valid_to(self):
@@ -89,8 +87,7 @@ class Jwt:
 
     @valid_to.setter
     def valid_to(self, valid_to: int):
-        if 'exp' not in self.registered_claims:
-            self.registered_claims['exp'] = valid_to
+        self.registered_claims['exp'] = valid_to
 
     @property
     def valid_from(self):
@@ -98,8 +95,7 @@ class Jwt:
 
     @valid_from.setter
     def valid_from(self, valid_from: int):
-        if 'nbf' not in self.registered_claims:
-            self.registered_claims['nbf'] = valid_from
+        self.registered_claims['nbf'] = valid_from
 
     @property
     def issued_at(self):
@@ -107,8 +103,7 @@ class Jwt:
 
     @issued_at.setter
     def issued_at(self, issued_at: int):
-        if 'iat' not in self.registered_claims:
-            self.registered_claims['iat'] = issued_at
+        self.registered_claims['iat'] = issued_at
 
     @property
     def id(self):
@@ -116,8 +111,13 @@ class Jwt:
 
     @id.setter
     def id(self, id: str):
-        if 'jti' not in self.registered_claims:
-            self.registered_claims['jti'] = id
+        self.registered_claims['jti'] = id
+
+    def _pop_claims_from_payload(self):
+        claims_in_payload = [k for k in self.payload.keys() if
+                             k in registered_claims.values()]
+        for name in claims_in_payload:
+            self.registered_claims[name] = self.payload.pop(name)
 
     def encode(self):
         payload = {}
