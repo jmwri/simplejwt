@@ -2,6 +2,7 @@ from typing import Union
 import json
 import hmac
 import hashlib
+from datetime import datetime
 
 from simplejwt import util
 from simplejwt.exception import InvalidSignatureError
@@ -122,6 +123,7 @@ class Jwt:
         self.registered_claims['jti'] = id
 
     def valid(self, time: int = None):
+        time = time or int(datetime.utcnow().timestamp())
         if time < self.valid_from:
             return False
         if time > self.valid_to:

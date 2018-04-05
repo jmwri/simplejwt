@@ -1,5 +1,6 @@
 import pytest
 import hashlib
+from datetime import datetime
 
 from simplejwt import jwt, util
 from simplejwt.exception import InvalidSignatureError
@@ -138,6 +139,14 @@ def test_jwt_valid():
     assert obj.valid(3)
     assert obj.valid(4)
     assert not obj.valid(5)
+
+
+def test_jwt_valid_current_time():
+    now = int(datetime.utcnow().timestamp())
+    obj = jwt.Jwt('secret', {}, valid_from=now, valid_to=now)
+    assert obj.valid()
+    obj = jwt.Jwt('secret', {}, valid_from=now+1, valid_to=now+1)
+    assert not obj.valid()
 
 
 def test_make_precedence():
