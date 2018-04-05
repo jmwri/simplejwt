@@ -125,6 +125,12 @@ class Jwt:
         self.token = encode(self.secret, payload, self.alg, self.header)
         return self.token
 
+    @staticmethod
+    def decode(secret: Union[str, bytes], token: Union[str, bytes],
+               alg: str = default_alg):
+        header, payload = _decode(secret, token, alg)
+        return Jwt(secret, payload, alg, header)
+
 
 def make(secret: Union[str, bytes], payload: dict, alg: str = default_alg,
          **kwargs):
@@ -156,15 +162,19 @@ def encode(secret: Union[str, bytes], payload: dict = None,
     return util.from_bytes(token)
 
 
-def decode(secret: Union[str, bytes], token: Union[str, bytes],
+def _decode(secret: Union[str, bytes], token: Union[str, bytes],
            alg: str = default_alg):
     secret = util.to_bytes(secret)
     token = util.to_bytes(token)
     pre_signature, signature_segment = token.rsplit(b'.', 1)
-    payload_b64 = pre_signature.split(b'.', 1)[1]
+    header_b64, payload_b64 = pre_signature.split(b'.')
+    header_json = util.b64_decode(header_b64)
+    header = json.loads(util.from_bytes(header_json))
     payload_json = util.b64_decode(payload_b64)
     payload = json.loads(util.from_bytes(payload_json))
 
+    if not isinstance(header, dict):
+        raise RuntimeError('Invalid header: {}'.format(header))
     if not isinstance(payload, dict):
         raise RuntimeError('Invalid payload: {}'.format(payload))
 
@@ -173,4 +183,10 @@ def decode(secret: Union[str, bytes], token: Union[str, bytes],
 
     if not hmac.compare_digest(signature, calculated_signature):
         raise InvalidSignatureError('Invalid signature')
+    return header, payload
+
+
+def decode(secret: Union[str, bytes], token: Union[str, bytes],
+           alg: str = default_alg):
+    _, payload = _decode(secret, token, alg)
     return payload
