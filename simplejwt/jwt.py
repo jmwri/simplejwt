@@ -41,8 +41,7 @@ def _hash(secret: bytes, data: bytes, alg: str) -> bytes:
 class Jwt:
     def __init__(self, secret: Union[str, bytes], payload: dict = None,
                  alg: str = default_alg, header: dict = None,
-                 token: Union[str, bytes] = None, issuer: str = None,
-                 subject: str = None, audience: str = None,
+                 issuer: str = None, subject: str = None, audience: str = None,
                  valid_to: int = None, valid_from: int = None,
                  issued_at: int = None, id: str = None):
         self.secret = secret
@@ -50,7 +49,6 @@ class Jwt:
         self.alg = alg
         self.header = header or {}
         self.registered_claims = {}
-        self.token = token
         if issuer:
             self.issuer = issuer
         if subject:
@@ -133,14 +131,13 @@ class Jwt:
         payload = {}
         payload.update(self.registered_claims)
         payload.update(self.payload)
-        self.token = encode(self.secret, payload, self.alg, self.header)
-        return self.token
+        return encode(self.secret, payload, self.alg, self.header)
 
     @staticmethod
     def decode(secret: Union[str, bytes], token: Union[str, bytes],
                alg: str = default_alg):
         header, payload = _decode(secret, token, alg)
-        return Jwt(secret, payload, alg, header, token)
+        return Jwt(secret, payload, alg, header)
 
 
 def make(secret: Union[str, bytes], payload: dict, alg: str = default_alg,

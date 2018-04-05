@@ -123,8 +123,11 @@ def test_jwt_decode():
             alg
         )
         assert obj.secret == test_token_data['secret']
-        assert obj.token == token
         assert obj.alg == alg
+        assert obj.header == {
+            'type': 'JWT',
+            'alg': alg
+        }
         assert obj.payload == test_token_data['payload']
 
 
