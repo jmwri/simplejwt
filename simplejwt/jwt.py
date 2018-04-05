@@ -12,6 +12,8 @@ algorithms = {
     'HS512': hashlib.sha512,
 }
 
+default_alg = 'HS256'
+
 
 def get_algorithm(alg: str):
     if alg not in algorithms:
@@ -28,8 +30,8 @@ def _hash(secret: bytes, data: bytes, alg: str) -> bytes:
 
 class Jwt:
     def __init__(self, secret: Union[str, bytes], payload: dict = None,
-                 alg: str = 'HS256', header: dict = None, issuer: str = None,
-                 subject: str = None, audience: str = None,
+                 alg: str = default_alg, header: dict = None,
+                 issuer: str = None, subject: str = None, audience: str = None,
                  valid_to: int = None, valid_from: int = None,
                  issued_at: int = None, id: str = None):
         self.secret = secret
@@ -124,13 +126,13 @@ class Jwt:
         return self.token
 
 
-def make(secret: Union[str, bytes], payload: dict, alg: str = 'HS256',
+def make(secret: Union[str, bytes], payload: dict, alg: str = default_alg,
          **kwargs):
     jwt = Jwt(secret, payload, alg, **kwargs)
     return jwt.encode()
 
 
-def encode(secret: Union[str, bytes], payload: dict, alg: str = 'HS256',
+def encode(secret: Union[str, bytes], payload: dict, alg: str = default_alg,
            header: dict = None):
     secret = util.to_bytes(secret)
 
@@ -156,7 +158,7 @@ def encode(secret: Union[str, bytes], payload: dict, alg: str = 'HS256',
 
 
 def decode(secret: Union[str, bytes], token: Union[str, bytes],
-           alg: str = 'HS256'):
+           alg: str = default_alg):
     secret = util.to_bytes(secret)
     token = util.to_bytes(token)
     pre_signature, signature_segment = token.rsplit(b'.', 1)
