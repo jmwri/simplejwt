@@ -95,6 +95,31 @@ def test_make_claims():
         assert payload[abb] == test_registered_claims[name]
 
 
+def test_jwt_registered_claims_constructor():
+    for name, abb in registered_claims.items():
+        args = {
+            'secret': test_token_data['secret'],
+            'payload': test_token_data['payload'],
+            name: test_registered_claims[name]
+        }
+        obj = jwt.Jwt(**args)
+        assert getattr(obj, name) == test_registered_claims[name]
+
+
+def test_jwt_registered_claims():
+    for name, abb in registered_claims.items():
+        args = {
+            'secret': test_token_data['secret'],
+            'payload': test_token_data['payload'],
+        }
+        obj = jwt.Jwt(**args)
+        setattr(obj, name, test_registered_claims[name])
+        token = obj.encode()
+        payload = jwt.decode(test_token_data['secret'], token)
+        assert getattr(obj, name) == test_registered_claims[name]
+        assert payload[abb] == test_registered_claims[name]
+
+
 def test_make_precedence():
     token = jwt.make(test_token_data['secret'], {'iss': 'usr_defined_iss'},
                      issuer='my_iss')
