@@ -25,16 +25,6 @@ test_token_data = {
     }
 }
 
-registered_claims = {
-    'issuer': 'iss',
-    'subject': 'sub',
-    'audience': 'aud',
-    'valid_to': 'exp',
-    'valid_from': 'nbf',
-    'issued_at': 'iat',
-    'id': 'jti',
-}
-
 test_registered_claims = {
     'issuer': 'test_issuer',
     'subject': 'test_subject',
@@ -84,7 +74,7 @@ def test_encode():
 
 
 def test_make_claims():
-    for name, abb in registered_claims.items():
+    for name, abb in jwt.registered_claims.items():
         args = {
             'secret': test_token_data['secret'],
             'payload': test_token_data['payload'],
@@ -96,7 +86,7 @@ def test_make_claims():
 
 
 def test_jwt_registered_claims_constructor():
-    for name, abb in registered_claims.items():
+    for name, abb in jwt.registered_claims.items():
         args = {
             'secret': test_token_data['secret'],
             'payload': test_token_data['payload'],
@@ -107,7 +97,7 @@ def test_jwt_registered_claims_constructor():
 
 
 def test_jwt_registered_claims():
-    for name, abb in registered_claims.items():
+    for name, abb in jwt.registered_claims.items():
         args = {
             'secret': test_token_data['secret'],
             'payload': test_token_data['payload'],
@@ -118,6 +108,24 @@ def test_jwt_registered_claims():
         payload = jwt.decode(test_token_data['secret'], token)
         assert getattr(obj, name) == test_registered_claims[name]
         assert payload[abb] == test_registered_claims[name]
+
+
+def test_jwt_precedence():
+    obj = jwt.Jwt('secret', {'iss': 'usr_defined_iss'}, issuer='my_iss')
+    assert obj.registered_claims['iss'] == 'usr_defined_iss'
+
+
+def test_jwt_decode():
+    for alg, token in test_tokens.items():
+        obj = jwt.Jwt.decode(
+            test_token_data['secret'],
+            token,
+            alg
+        )
+        assert obj.secret == test_token_data['secret']
+        assert obj.token == token
+        assert obj.alg == alg
+        assert obj.payload == test_token_data['payload']
 
 
 def test_make_precedence():
@@ -154,6 +162,12 @@ def test_decode_invalid_signature():
                 util.from_bytes(bad_token),
                 alg
             )
+
+
+def test_decode_invalid_header():
+    token = jwt.encode(test_token_data['secret'], header='should be dict')
+    with pytest.raises(RuntimeError):
+        jwt.decode(test_token_data['secret'], token)
 
 
 def test_decode_invalid_payload():

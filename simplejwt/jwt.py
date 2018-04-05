@@ -14,6 +14,16 @@ algorithms = {
 
 default_alg = 'HS256'
 
+registered_claims = {
+    'issuer': 'iss',
+    'subject': 'sub',
+    'audience': 'aud',
+    'valid_to': 'exp',
+    'valid_from': 'nbf',
+    'issued_at': 'iat',
+    'id': 'jti',
+}
+
 
 def get_algorithm(alg: str):
     if alg not in algorithms:
@@ -144,12 +154,15 @@ def encode(secret: Union[str, bytes], payload: dict = None,
     secret = util.to_bytes(secret)
 
     payload = payload or {}
-    header = header.copy() if header else {}
+    header = header or {}
 
-    header.update({
-        'type': 'JWT',
-        'alg': alg
-    })
+    if isinstance(header, dict):
+        header = header.copy()
+        header.update({
+            'type': 'JWT',
+            'alg': alg
+        })
+
     header_json = util.to_bytes(json.dumps(header))
     header_b64 = util.b64_encode(header_json)
     payload_json = util.to_bytes(json.dumps(payload))
@@ -164,7 +177,7 @@ def encode(secret: Union[str, bytes], payload: dict = None,
 
 
 def _decode(secret: Union[str, bytes], token: Union[str, bytes],
-           alg: str = default_alg):
+            alg: str = default_alg):
     secret = util.to_bytes(secret)
     token = util.to_bytes(token)
     pre_signature, signature_segment = token.rsplit(b'.', 1)
