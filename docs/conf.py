@@ -11,9 +11,11 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+import re
 
-import pkg_resources
-full_version = pkg_resources.require('simplejwt')[0].version
+with open('../simplejwt/__init__.py') as version_file:
+    full_version = re.search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
+                             version_file.read()).group('version')
 
 # -- Project information -----------------------------------------------------
 
@@ -25,7 +27,6 @@ author = 'Jim Wright'
 version = full_version.rsplit('.', 1)[0]
 # The full version, including alpha/beta/rc tags
 release = full_version
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -68,7 +69,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
-
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -121,7 +121,6 @@ html_sidebars = {
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'simplejwtdoc'
 
-
 # -- Options for LaTeX output ------------------------------------------------
 
 latex_elements = {
@@ -150,7 +149,6 @@ latex_documents = [
      'Jim Wright', 'manual'),
 ]
 
-
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
@@ -159,7 +157,6 @@ man_pages = [
     (master_doc, 'simplejwt', 'simplejwt Documentation',
      [author], 1)
 ]
-
 
 # -- Options for Texinfo output ----------------------------------------------
 
