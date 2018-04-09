@@ -9,3 +9,4 @@ ratings:
   - simplejwt/**
 exclude_patterns:
   - docs
+  - tests
