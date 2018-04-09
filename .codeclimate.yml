@@ -7,3 +7,5 @@ engines:
 ratings:
   paths:
   - simplejwt/**
+exclude_patterns:
+  - docs
