@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 
-github = 'https://github.com/jmwri/simplejwt'
 version = '0.4.0'
+
+github = 'https://github.com/jmwri/simplejwt'
 
 setup(
     name='simplejwt',
@@ -37,7 +38,7 @@ setup(
     ],
     extras_require={
         'test': [
-            'coverage', 'tox', 'pytest'
+            'coverage', 'tox', 'pytest', 'sphinx'
         ]
     }
 )

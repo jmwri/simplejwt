@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Callable, Tuple
 import json
 import hmac
 import hashlib
@@ -26,13 +26,32 @@ registered_claims = {
 }
 
 
-def get_algorithm(alg: str):
+def get_algorithm(alg: str) -> Callable:
+    """
+    :param alg: The name of the requested `JSON Web Algorithm <https://tools.ietf.org/html/rfc7519#ref-JWA>`_. `RFC7518 <https://tools.ietf.org/html/rfc7518#section-3.2>`_ is related.
+    :type alg: str
+    :return: The requested algorithm.
+    :rtype: Callable
+    :raises: ValueError
+    """
     if alg not in algorithms:
         raise ValueError('Invalid algorithm: {:s}'.format(alg))
     return algorithms[alg]
 
 
 def _hash(secret: bytes, data: bytes, alg: str) -> bytes:
+    """
+    Create a new HMAC hash.
+
+    :param secret: The secret used when hashing data.
+    :type secret: bytes
+    :param data: The data to hash.
+    :type data: bytes
+    :param alg: The algorithm to use when hashing `data`.
+    :type alg: str
+    :return: New HMAC hash.
+    :rtype: bytes
+    """
     algorithm = get_algorithm(alg)
     return hmac \
         .new(secret, msg=data, digestmod=algorithm) \
@@ -40,11 +59,38 @@ def _hash(secret: bytes, data: bytes, alg: str) -> bytes:
 
 
 class Jwt:
+    """
+    A self-contained class that can manage encoding and decoding tokens.
+    """
     def __init__(self, secret: Union[str, bytes], payload: dict = None,
                  alg: str = default_alg, header: dict = None,
                  issuer: str = None, subject: str = None, audience: str = None,
                  valid_to: int = None, valid_from: int = None,
                  issued_at: int = None, id: str = None):
+        """
+        :param secret: The secret used to encode the token.
+        :type secret: Union[str, bytes]
+        :param payload: The payload to be encoded in the token.
+        :type payload: dict
+        :param alg: The algorithm used to hash the token.
+        :type alg: str
+        :param header: The header of the token.
+        :type header: dict
+        :param issuer: The issuer of the token.
+        :type issuer: str
+        :param subject: The subject of the token.
+        :type subject: str
+        :param audience: The audience of the token.
+        :type audience: str
+        :param valid_to: Date the token expires as a timestamp.
+        :type valid_to: int
+        :param valid_from: Date the token is valid from as timestamp.
+        :type valid_from: int
+        :param issued_at: Date the token was issued as a timestamp.
+        :type issued_at: int
+        :param id: The unique ID of the token.
+        :type id: str
+        """
         self.secret = secret
         self.payload = payload or {}
         self.alg = alg
@@ -67,62 +113,142 @@ class Jwt:
         self._pop_claims_from_payload()
 
     @property
-    def issuer(self):
+    def issuer(self) -> Union[str, None]:
+        """
+        :return: Issuer (`iss`) claim from the token.
+        :rtype: Union[str, None]
+        """
         return self.registered_claims.get('iss')
 
     @issuer.setter
     def issuer(self, issuer: str):
+        """
+        Sets the issuer (`iss`) claim in the token.
+
+        :param issuer: New value.
+        :type issuer: str
+        """
         self.registered_claims['iss'] = issuer
 
     @property
-    def subject(self):
+    def subject(self) -> Union[str, None]:
+        """
+        :return: Subject (`sub`) claim from the token.
+        :rtype: Union[str, None]
+        """
         return self.registered_claims.get('sub')
 
     @subject.setter
     def subject(self, subject: str):
+        """
+        Sets the subject (`sub`) claim in the token.
+
+        :param subject: New value.
+        :type subject: str
+        """
         self.registered_claims['sub'] = subject
 
     @property
-    def audience(self):
+    def audience(self) -> Union[str, None]:
+        """
+        :return: Audience (`aud`) claim from the token.
+        :rtype: Union[str, None]
+        """
         return self.registered_claims.get('aud')
 
     @audience.setter
     def audience(self, audience: str):
+        """
+        Sets the audience (`aud`) claim in the token.
+
+        :param audience: New value.
+        :type audience: str
+        """
         self.registered_claims['aud'] = audience
 
     @property
-    def valid_to(self):
+    def valid_to(self) -> Union[int, None]:
+        """
+        :return: Expires (`exp`) claim from the token.
+        :rtype: Union[int, None]
+        """
         return self.registered_claims.get('exp')
 
     @valid_to.setter
     def valid_to(self, valid_to: int):
+        """
+        Sets the expires (`exp`) claim in the token.
+
+        :param valid_to: New value.
+        :type valid_to: int
+        """
         self.registered_claims['exp'] = valid_to
 
     @property
-    def valid_from(self):
+    def valid_from(self) -> Union[int, None]:
+        """
+        :return: Not before (`nbf`) claim from the token.
+        :rtype: Union[int, None]
+        """
         return self.registered_claims.get('nbf')
 
     @valid_from.setter
     def valid_from(self, valid_from: int):
+        """
+        Sets the not before (`nbf`) claim in the token.
+
+        :param valid_from: New value.
+        :type valid_from: int
+        """
         self.registered_claims['nbf'] = valid_from
 
     @property
-    def issued_at(self):
+    def issued_at(self) -> Union[int, None]:
+        """
+        :return: Issued at (`iat`) claim from the token.
+        :rtype: Union[int, None]
+        """
         return self.registered_claims.get('iat')
 
     @issued_at.setter
     def issued_at(self, issued_at: int):
+
+        """
+        Sets the issued at (`iat`) claim in the token.
+
+        :param issued_at: New value.
+        :type issued_at: int
+        """
         self.registered_claims['iat'] = issued_at
 
     @property
-    def id(self):
+    def id(self) -> Union[str, None]:
+        """
+        :return: ID (`jti`) claim from the token.
+        :rtype: Union[str, None]
+        """
         return self.registered_claims.get('jti')
 
     @id.setter
     def id(self, id: str):
+        """
+        Sets the ID (`jti`) claim in the token.
+
+        :param id: New value.
+        :type id: str
+        """
         self.registered_claims['jti'] = id
 
-    def valid(self, time: int = None):
+    def valid(self, time: int = None) -> bool:
+        """
+        Is the token valid? This method only checks the timestamps within the
+        token and compares them against the current time if none is provided.
+
+        :param time: The timestamp to validate against
+        :type time: Union[int, None]
+        :return: The validity of the token.
+        :rtype: bool
+        """
         time = time or int(datetime.utcnow().timestamp())
         if time < self.valid_from:
             return False
@@ -131,12 +257,22 @@ class Jwt:
         return True
 
     def _pop_claims_from_payload(self):
+        """
+        Check for registered claims in the payload and move them to the
+        registered_claims property, overwriting any extant claims.
+        """
         claims_in_payload = [k for k in self.payload.keys() if
                              k in registered_claims.values()]
         for name in claims_in_payload:
             self.registered_claims[name] = self.payload.pop(name)
 
-    def encode(self):
+    def encode(self) -> str:
+        """
+        Create a token based on the data held in the class.
+
+        :return: A new token
+        :rtype: str
+        """
         payload = {}
         payload.update(self.registered_claims)
         payload.update(self.payload)
@@ -144,19 +280,56 @@ class Jwt:
 
     @staticmethod
     def decode(secret: Union[str, bytes], token: Union[str, bytes],
-               alg: str = default_alg):
+               alg: str = default_alg) -> 'Jwt':
+        """
+        Decodes the given token into an instance of `Jwt`.
+
+        :param secret: The secret used to decode the token. Must match the
+            secret used when creating the token.
+        :type secret: Union[str, bytes]
+        :param token: The token to decode.
+        :type token: Union[str, bytes]
+        :param alg: The algorithm used to decode the token. Must match the
+            algorithm used when creating the token.
+        :type alg: str
+        :return: The decoded token.
+        :rtype: `Jwt`
+        """
         header, payload = _decode(secret, token, alg)
         return Jwt(secret, payload, alg, header)
 
 
 def make(secret: Union[str, bytes], payload: dict, alg: str = default_alg,
-         **kwargs):
+         **kwargs) -> str:
+    """
+    :param secret: The secret used to encode the token.
+    :type secret: Union[str, bytes]
+    :param payload: The payload to be encoded in the token.
+    :type payload: dict
+    :param alg: The algorithm used to hash the token.
+    :type alg: str
+    :param kwargs: See the arguments in `Jwt`.
+    :return: A new token
+    :rtype: str
+    """
     jwt = Jwt(secret, payload, alg, **kwargs)
     return jwt.encode()
 
 
 def encode(secret: Union[str, bytes], payload: dict = None,
            alg: str = default_alg, header: dict = None):
+    """
+    :param secret: The secret used to encode the token.
+    :type secret: Union[str, bytes]
+    :param payload: The payload to be encoded in the token.
+    :type payload: dict
+    :param alg: The algorithm used to hash the token.
+    :type alg: str
+    :param header: The header to be encoded in the token.
+    :type header: dict
+    :return: A new token
+    :rtype: str
+    """
     secret = util.to_bytes(secret)
 
     payload = payload or {}
@@ -184,6 +357,20 @@ def encode(secret: Union[str, bytes], payload: dict = None,
 
 def _decode(secret: Union[str, bytes], token: Union[str, bytes],
             alg: str = default_alg):
+    """
+    Decodes the given token's header and payload and validates the signature.
+
+    :param secret: The secret used to decode the token. Must match the
+        secret used when creating the token.
+    :type secret: Union[str, bytes]
+    :param token: The token to decode.
+    :type token: Union[str, bytes]
+    :param alg: The algorithm used to decode the token. Must match the
+        algorithm used when creating the token.
+    :type alg: str
+    :return: The decoded header and payload.
+    :rtype: Tuple[dict, dict]
+    """
     secret = util.to_bytes(secret)
     token = util.to_bytes(token)
     pre_signature, signature_segment = token.rsplit(b'.', 1)
@@ -208,5 +395,19 @@ def _decode(secret: Union[str, bytes], token: Union[str, bytes],
 
 def decode(secret: Union[str, bytes], token: Union[str, bytes],
            alg: str = default_alg):
+    """
+    Decodes the given token's payload and validates the signature.
+
+    :param secret: The secret used to decode the token. Must match the
+        secret used when creating the token.
+    :type secret: Union[str, bytes]
+    :param token: The token to decode.
+    :type token: Union[str, bytes]
+    :param alg: The algorithm used to decode the token. Must match the
+        algorithm used when creating the token.
+    :type alg: str
+    :return: The decoded payload.
+    :rtype: dict
+    """
     _, payload = _decode(secret, token, alg)
     return payload
