@@ -3,7 +3,8 @@ import hashlib
 from datetime import datetime
 
 from simplejwt import jwt, util
-from simplejwt.exception import InvalidSignatureError
+from simplejwt.exception import InvalidSignatureError, InvalidHeaderError, \
+    InvalidPayloadError
 
 test_tokens = {
     'HS256': ('eyJ0eXBlIjogIkpXVCIsICJhbGciOiAiSFMyNTYifQ.'
@@ -145,7 +146,7 @@ def test_jwt_valid_current_time():
     now = int(datetime.utcnow().timestamp())
     obj = jwt.Jwt('secret', {}, valid_from=now, valid_to=now)
     assert obj.valid()
-    obj = jwt.Jwt('secret', {}, valid_from=now+1, valid_to=now+1)
+    obj = jwt.Jwt('secret', {}, valid_from=now + 1, valid_to=now + 1)
     assert not obj.valid()
 
 
@@ -187,11 +188,35 @@ def test_decode_invalid_signature():
 
 def test_decode_invalid_header():
     token = jwt.encode(test_token_data['secret'], header='should be dict')
-    with pytest.raises(RuntimeError):
+    with pytest.raises(InvalidHeaderError):
         jwt.decode(test_token_data['secret'], token)
+
+
+def test_decode_invalid_json_header():
+    token = jwt.encode(test_token_data['secret'], header={'valid': 'header'})
+    header, payload, signature = token.split('.')
+    header = str([
+        '{' if k % 3 == 0 else v
+        for k, v in enumerate(header)
+    ])
+    invalid_token = '.'.join([header, payload, signature])
+    with pytest.raises(InvalidHeaderError):
+        jwt.decode(test_token_data['secret'], invalid_token)
 
 
 def test_decode_invalid_payload():
     token = jwt.encode(test_token_data['secret'], 'should be dict')
-    with pytest.raises(RuntimeError):
+    with pytest.raises(InvalidPayloadError):
         jwt.decode(test_token_data['secret'], token)
+
+
+def test_decode_invalid_json_payload():
+    token = jwt.encode(test_token_data['secret'], payload={'valid': 'payload'})
+    header, payload, signature = token.split('.')
+    payload = str([
+        '{' if k % 3 == 0 else v
+        for k, v in enumerate(payload)
+    ])
+    invalid_token = '.'.join([header, payload, signature])
+    with pytest.raises(InvalidPayloadError):
+        jwt.decode(test_token_data['secret'], invalid_token)

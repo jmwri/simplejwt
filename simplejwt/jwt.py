@@ -5,7 +5,8 @@ import hashlib
 from datetime import datetime
 
 from simplejwt import util
-from simplejwt.exception import InvalidSignatureError
+from simplejwt.exception import InvalidSignatureError, InvalidHeaderError, \
+    InvalidPayloadError
 
 algorithms = {
     'HS256': hashlib.sha256,
@@ -62,6 +63,7 @@ class Jwt:
     """
     A self-contained class that can manage encoding and decoding tokens.
     """
+
     def __init__(self, secret: Union[str, bytes], payload: dict = None,
                  alg: str = default_alg, header: dict = None,
                  issuer: str = None, subject: str = None, audience: str = None,
@@ -375,15 +377,21 @@ def _decode(secret: Union[str, bytes], token: Union[str, bytes],
     token = util.to_bytes(token)
     pre_signature, signature_segment = token.rsplit(b'.', 1)
     header_b64, payload_b64 = pre_signature.split(b'.')
-    header_json = util.b64_decode(header_b64)
-    header = json.loads(util.from_bytes(header_json))
-    payload_json = util.b64_decode(payload_b64)
-    payload = json.loads(util.from_bytes(payload_json))
+    try:
+        header_json = util.b64_decode(header_b64)
+        header = json.loads(util.from_bytes(header_json))
+    except (json.decoder.JSONDecodeError, UnicodeDecodeError, ValueError):
+        raise InvalidHeaderError('Invalid header')
+    try:
+        payload_json = util.b64_decode(payload_b64)
+        payload = json.loads(util.from_bytes(payload_json))
+    except (json.decoder.JSONDecodeError, UnicodeDecodeError, ValueError):
+        raise InvalidPayloadError('Invalid payload')
 
     if not isinstance(header, dict):
-        raise RuntimeError('Invalid header: {}'.format(header))
+        raise InvalidHeaderError('Invalid header: {}'.format(header))
     if not isinstance(payload, dict):
-        raise RuntimeError('Invalid payload: {}'.format(payload))
+        raise InvalidPayloadError('Invalid payload: {}'.format(payload))
 
     signature = util.b64_decode(signature_segment)
     calculated_signature = _hash(secret, pre_signature, alg)
