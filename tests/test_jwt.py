@@ -220,3 +220,22 @@ def test_decode_invalid_json_payload():
     invalid_token = '.'.join([header, payload, signature])
     with pytest.raises(InvalidPayloadError):
         jwt.decode(test_token_data['secret'], invalid_token)
+
+
+def test_compare_signature():
+    token_a = jwt.encode(test_token_data['secret'], payload={'token': '1'})
+    token_a2 = jwt.encode(test_token_data['secret'], payload={'token': '1'})
+    token_b = jwt.encode(test_token_data['secret'], payload={'token': '2'})
+    _, _, signature_a = token_a.split('.')
+    _, _, signature_a2 = token_a2.split('.')
+    _, _, signature_b = token_b.split('.')
+    assert jwt.compare_signature(signature_a, signature_a2)
+    assert not jwt.compare_signature(signature_a, signature_b)
+
+
+def test_compare_token():
+    token_a = jwt.encode(test_token_data['secret'], payload={'token': '1'})
+    token_a2 = jwt.encode(test_token_data['secret'], payload={'token': '1'})
+    token_b = jwt.encode(test_token_data['secret'], payload={'token': '2'})
+    assert jwt.compare_token(token_a, token_a2)
+    assert not jwt.compare_token(token_a, token_b)

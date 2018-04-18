@@ -396,7 +396,7 @@ def _decode(secret: Union[str, bytes], token: Union[str, bytes],
     signature = util.b64_decode(signature_segment)
     calculated_signature = _hash(secret, pre_signature, alg)
 
-    if not hmac.compare_digest(signature, calculated_signature):
+    if not compare_signature(signature, calculated_signature):
         raise InvalidSignatureError('Invalid signature')
     return header, payload
 
@@ -419,3 +419,39 @@ def decode(secret: Union[str, bytes], token: Union[str, bytes],
     """
     _, payload = _decode(secret, token, alg)
     return payload
+
+
+def compare_signature(expected: Union[str, bytes], actual: Union[str, bytes]):
+    """
+    Compares the given signatures.
+
+    :param expected: The expected signature.
+    :type expected: Union[str, bytes]
+    :param actual: The actual signature.
+    :type actual: Union[str, bytes]
+    :return: Do the signatures match?
+    :rtype: bool
+    """
+    expected = util.to_bytes(expected)
+    actual = util.to_bytes(actual)
+    return hmac.compare_digest(expected, actual)
+
+
+def compare_token(expected: Union[str, bytes], actual: Union[str, bytes]):
+    """
+    Compares the given tokens.
+
+    :param expected: The expected token.
+    :type expected: Union[str, bytes]
+    :param actual: The actual token.
+    :type actual: Union[str, bytes]
+    :return: Do the tokens match?
+    :rtype: bool
+    """
+    expected = util.to_bytes(expected)
+    actual = util.to_bytes(actual)
+    _, expected_sig_seg = expected.rsplit(b'.', 1)
+    _, actual_sig_seg = actual.rsplit(b'.', 1)
+    expected_sig = util.b64_decode(expected_sig_seg)
+    actual_sig = util.b64_decode(actual_sig_seg)
+    return compare_signature(expected_sig, actual_sig)
