@@ -332,23 +332,6 @@ class Jwt:
         return True
 
 
-def make(secret: Union[str, bytes], payload: dict, alg: str = default_alg,
-         **kwargs) -> str:
-    """
-    :param secret: The secret used to encode the token.
-    :type secret: Union[str, bytes]
-    :param payload: The payload to be encoded in the token.
-    :type payload: dict
-    :param alg: The algorithm used to hash the token.
-    :type alg: str
-    :param kwargs: See the arguments in `Jwt`.
-    :return: A new token
-    :rtype: str
-    """
-    jwt = Jwt(secret, payload, alg, **kwargs)
-    return jwt.encode()
-
-
 def encode(secret: Union[str, bytes], payload: dict = None,
            alg: str = default_alg, header: dict = None) -> str:
     """

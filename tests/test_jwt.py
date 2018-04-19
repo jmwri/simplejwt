@@ -75,18 +75,6 @@ def test_encode():
         ) == token
 
 
-def test_make_claims():
-    for name, abb in jwt.registered_claims.items():
-        args = {
-            'secret': test_token_data['secret'],
-            'payload': test_token_data['payload'],
-            name: test_registered_claims[name]
-        }
-        token = jwt.make(**args)
-        payload = jwt.decode(test_token_data['secret'], token)
-        assert payload[abb] == test_registered_claims[name]
-
-
 def test_jwt_registered_claims_constructor():
     for name, abb in jwt.registered_claims.items():
         args = {
@@ -190,19 +178,6 @@ def test_jwt_compare_dates():
     assert jwt_a.compare(jwt_a2, True)
     assert jwt_a.compare(jwt_b)
     assert not jwt_a.compare(jwt_b, True)
-
-
-def test_make_precedence():
-    token = jwt.make(test_token_data['secret'], {'iss': 'usr_defined_iss'},
-                     issuer='my_iss')
-    payload = jwt.decode(test_token_data['secret'], token)
-    assert payload['iss'] == 'usr_defined_iss'
-
-
-def test_make_leaves_payload_unmodified():
-    payload = {'my': 'payload'}
-    jwt.make(test_token_data['secret'], payload, issuer='my_iss')
-    assert payload == {'my': 'payload'}
 
 
 def test_decode():
