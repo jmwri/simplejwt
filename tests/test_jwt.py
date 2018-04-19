@@ -150,6 +150,48 @@ def test_jwt_valid_current_time():
     assert not obj.valid()
 
 
+def test_jwt_compare_secret():
+    jwt_a = jwt.Jwt('s1')
+    jwt_a2 = jwt.Jwt('s1')
+    jwt_b = jwt.Jwt('s2')
+    assert jwt_a.compare(jwt_a2)
+    assert not jwt_a.compare(jwt_b)
+
+
+def test_jwt_compare_payload():
+    jwt_a = jwt.Jwt(test_token_data['secret'], payload={'token': '1'})
+    jwt_a2 = jwt.Jwt(test_token_data['secret'], payload={'token': '1'})
+    jwt_b = jwt.Jwt(test_token_data['secret'], payload={'token': '2'})
+    assert jwt_a.compare(jwt_a2)
+    assert not jwt_a.compare(jwt_b)
+
+
+def test_jwt_compare_alg():
+    jwt_a = jwt.Jwt(test_token_data['secret'], alg='HS256')
+    jwt_a2 = jwt.Jwt(test_token_data['secret'], alg='HS256')
+    jwt_b = jwt.Jwt(test_token_data['secret'], alg='HS512')
+    assert jwt_a.compare(jwt_a2)
+    assert not jwt_a.compare(jwt_b)
+
+
+def test_jwt_compare_header():
+    jwt_a = jwt.Jwt(test_token_data['secret'], header={'test': 1})
+    jwt_a2 = jwt.Jwt(test_token_data['secret'], header={'test': 1})
+    jwt_b = jwt.Jwt(test_token_data['secret'], header={'test': 2})
+    assert jwt_a.compare(jwt_a2)
+    assert not jwt_a.compare(jwt_b)
+
+
+def test_jwt_compare_dates():
+    jwt_a = jwt.Jwt(test_token_data['secret'], issued_at=1234)
+    jwt_a2 = jwt.Jwt(test_token_data['secret'], issued_at=1234)
+    jwt_b = jwt.Jwt(test_token_data['secret'], issued_at=5678)
+    assert jwt_a.compare(jwt_a2)
+    assert jwt_a.compare(jwt_a2, True)
+    assert jwt_a.compare(jwt_b)
+    assert not jwt_a.compare(jwt_b, True)
+
+
 def test_make_precedence():
     token = jwt.make(test_token_data['secret'], {'iss': 'usr_defined_iss'},
                      issuer='my_iss')
