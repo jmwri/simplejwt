@@ -350,7 +350,7 @@ def make(secret: Union[str, bytes], payload: dict, alg: str = default_alg,
 
 
 def encode(secret: Union[str, bytes], payload: dict = None,
-           alg: str = default_alg, header: dict = None):
+           alg: str = default_alg, header: dict = None) -> str:
     """
     :param secret: The secret used to encode the token.
     :type secret: Union[str, bytes]
@@ -389,7 +389,7 @@ def encode(secret: Union[str, bytes], payload: dict = None,
 
 
 def _decode(secret: Union[str, bytes], token: Union[str, bytes],
-            alg: str = default_alg):
+            alg: str = default_alg) -> Tuple[dict, dict]:
     """
     Decodes the given token's header and payload and validates the signature.
 
@@ -433,7 +433,7 @@ def _decode(secret: Union[str, bytes], token: Union[str, bytes],
 
 
 def decode(secret: Union[str, bytes], token: Union[str, bytes],
-           alg: str = default_alg):
+           alg: str = default_alg) -> dict:
     """
     Decodes the given token's payload and validates the signature.
 
@@ -452,7 +452,8 @@ def decode(secret: Union[str, bytes], token: Union[str, bytes],
     return payload
 
 
-def compare_signature(expected: Union[str, bytes], actual: Union[str, bytes]):
+def compare_signature(expected: Union[str, bytes],
+                      actual: Union[str, bytes]) -> bool:
     """
     Compares the given signatures.
 
@@ -468,7 +469,8 @@ def compare_signature(expected: Union[str, bytes], actual: Union[str, bytes]):
     return hmac.compare_digest(expected, actual)
 
 
-def compare_token(expected: Union[str, bytes], actual: Union[str, bytes]):
+def compare_token(expected: Union[str, bytes],
+                  actual: Union[str, bytes]) -> bool:
     """
     Compares the given tokens.
 
