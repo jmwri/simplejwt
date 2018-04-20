@@ -96,6 +96,7 @@ class Jwt:
         self.secret = secret
         self.payload = payload or {}
         self.alg = alg
+        self._header = {}
         self.header = header or {}
         self.registered_claims = {}
         if issuer:
@@ -113,6 +114,32 @@ class Jwt:
         if id:
             self.id = id
         self._pop_claims_from_payload()
+
+    @property
+    def header(self) -> dict:
+        """
+        :return: Token header.
+        :rtype: dict
+        """
+        header = {}
+        if isinstance(self._header, dict):
+            header = self._header.copy()
+            header.update(self._header)
+        header.update({
+            'type': 'JWT',
+            'alg': self.alg
+        })
+        return header
+
+    @header.setter
+    def header(self, header: dict):
+        """
+        Sets the token header.
+
+        :param header: New header
+        :type header: dict
+        """
+        self._header = header
 
     @property
     def issuer(self) -> Union[str, None]:
@@ -350,13 +377,6 @@ def encode(secret: Union[str, bytes], payload: dict = None,
 
     payload = payload or {}
     header = header or {}
-
-    if isinstance(header, dict):
-        header = header.copy()
-        header.update({
-            'type': 'JWT',
-            'alg': alg
-        })
 
     header_json = util.to_bytes(json.dumps(header))
     header_b64 = util.b64_encode(header_json)

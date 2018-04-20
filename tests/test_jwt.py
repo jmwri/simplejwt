@@ -61,17 +61,15 @@ def test_cover_all_algorithms():
 
 
 def test_encode():
-    token_data = {
-        'secret': 'super_secret',
-        'payload': {
-            'testing': True
-        }
-    }
     for alg, token in test_tokens.items():
         assert jwt.encode(
-            token_data['secret'],
-            token_data['payload'],
-            alg
+            test_token_data['secret'],
+            test_token_data['payload'],
+            alg,
+            {
+                'type': 'JWT',
+                'alg': alg
+            }
         ) == token
 
 
@@ -167,6 +165,15 @@ def test_jwt_compare_alg():
 def test_jwt_compare_header():
     jwt_a = jwt.Jwt(test_token_data['secret'], header={'test': 1})
     jwt_a2 = jwt.Jwt(test_token_data['secret'], header={'test': 1})
+    jwt_b = jwt.Jwt(test_token_data['secret'], header={'test': 2})
+    assert jwt_a.compare(jwt_a2)
+    assert not jwt_a.compare(jwt_b)
+
+
+def test_jwt_compare_after_decode():
+    jwt_a = jwt.Jwt(test_token_data['secret'], header={'test': 1})
+    token_a = jwt_a.encode()
+    jwt_a2 = jwt.Jwt.decode(test_token_data['secret'], token_a)
     jwt_b = jwt.Jwt(test_token_data['secret'], header={'test': 2})
     assert jwt_a.compare(jwt_a2)
     assert not jwt_a.compare(jwt_b)
