@@ -297,7 +297,7 @@ class Jwt:
         :return: The decoded token.
         :rtype: `Jwt`
         """
-        header, payload = _decode(secret, token, alg)
+        header, payload = decode(secret, token, alg)
         return Jwt(secret, payload, alg, header)
 
     def compare(self, jwt: 'Jwt', compare_dates: bool = False) -> bool:
@@ -371,8 +371,8 @@ def encode(secret: Union[str, bytes], payload: dict = None,
     return util.from_bytes(token)
 
 
-def _decode(secret: Union[str, bytes], token: Union[str, bytes],
-            alg: str = default_alg) -> Tuple[dict, dict]:
+def decode(secret: Union[str, bytes], token: Union[str, bytes],
+           alg: str = default_alg) -> Tuple[dict, dict]:
     """
     Decodes the given token's header and payload and validates the signature.
 
@@ -413,26 +413,6 @@ def _decode(secret: Union[str, bytes], token: Union[str, bytes],
     if not compare_signature(signature, calculated_signature):
         raise InvalidSignatureError('Invalid signature')
     return header, payload
-
-
-def decode(secret: Union[str, bytes], token: Union[str, bytes],
-           alg: str = default_alg) -> dict:
-    """
-    Decodes the given token's payload and validates the signature.
-
-    :param secret: The secret used to decode the token. Must match the
-        secret used when creating the token.
-    :type secret: Union[str, bytes]
-    :param token: The token to decode.
-    :type token: Union[str, bytes]
-    :param alg: The algorithm used to decode the token. Must match the
-        algorithm used when creating the token.
-    :type alg: str
-    :return: The decoded payload.
-    :rtype: dict
-    """
-    _, payload = _decode(secret, token, alg)
-    return payload
 
 
 def compare_signature(expected: Union[str, bytes],

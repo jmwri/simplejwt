@@ -95,9 +95,9 @@ def test_jwt_registered_claims():
         obj = jwt.Jwt(**args)
         setattr(obj, name, test_registered_claims[name])
         token = obj.encode()
-        payload = jwt.decode(test_token_data['secret'], token)
+        obj2 = jwt.Jwt.decode(test_token_data['secret'], token)
         assert getattr(obj, name) == test_registered_claims[name]
-        assert payload[abb] == test_registered_claims[name]
+        assert getattr(obj2, name) == test_registered_claims[name]
 
 
 def test_jwt_precedence():
@@ -182,11 +182,12 @@ def test_jwt_compare_dates():
 
 def test_decode():
     for alg, token in test_tokens.items():
-        assert jwt.decode(
+        _, payload = jwt.decode(
             test_token_data['secret'],
             token,
             alg
-        ) == test_token_data['payload']
+        )
+        assert payload == test_token_data['payload']
 
 
 def test_decode_invalid_signature():
