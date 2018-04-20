@@ -96,8 +96,10 @@ def test_jwt_registered_claims():
         setattr(obj, name, test_registered_claims[name])
         token = obj.encode()
         obj2 = jwt.Jwt.decode(test_token_data['secret'], token)
+        _, payload = jwt.decode(test_token_data['secret'], token)
         assert getattr(obj, name) == test_registered_claims[name]
         assert getattr(obj2, name) == test_registered_claims[name]
+        assert payload[abb] == test_registered_claims[name]
 
 
 def test_jwt_precedence():
