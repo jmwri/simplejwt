@@ -138,6 +138,17 @@ def test_jwt_valid_current_time():
     assert not obj.valid()
 
 
+def test_jwt_valid_no_time():
+    has_from = jwt.Jwt('secret', valid_from=2)
+    has_to = jwt.Jwt('secret', valid_to=4)
+    has_none = jwt.Jwt('secret')
+    assert has_from.valid(2)
+    assert not has_from.valid(1)
+    assert has_to.valid(4)
+    assert not has_to.valid(5)
+    assert has_none.valid(5)
+
+
 def test_jwt_compare_secret():
     jwt_a = jwt.Jwt('s1')
     jwt_a2 = jwt.Jwt('s1')

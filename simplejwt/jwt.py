@@ -279,9 +279,9 @@ class Jwt:
         :rtype: bool
         """
         time = time or int(datetime.utcnow().timestamp())
-        if time < self.valid_from:
+        if isinstance(self.valid_from, int) and time < self.valid_from:
             return False
-        if time > self.valid_to:
+        if isinstance(self.valid_to, int) and time > self.valid_to:
             return False
         return True
 
