@@ -131,10 +131,12 @@ def test_jwt_valid():
 
 
 def test_jwt_valid_current_time():
-    now = int(datetime.utcnow().timestamp())
-    obj = jwt.Jwt('secret', {}, valid_from=now, valid_to=now)
+    epoch = datetime(1970, 1, 1, 0, 0, 0)
+    now = datetime.utcnow()
+    now_ts = int((now - epoch).total_seconds())
+    obj = jwt.Jwt('secret', {}, valid_from=now_ts, valid_to=now_ts)
     assert obj.valid()
-    obj = jwt.Jwt('secret', {}, valid_from=now + 1, valid_to=now + 1)
+    obj = jwt.Jwt('secret', {}, valid_from=now_ts + 1, valid_to=now_ts + 1)
     assert not obj.valid()
 
 
