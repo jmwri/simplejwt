@@ -9,7 +9,7 @@ python:
 - '3.6'
 - '3.7'
 install:
-- pip install -e ".[test]"
+- pipenv install --dev .
 before_script:
 - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
   > ./cc-test-reporter
