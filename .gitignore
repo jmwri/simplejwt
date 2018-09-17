@@ -36,5 +36,6 @@ pip-delete-this-directory.txt
 .pytest_cache
 .tox
 htmlcov
+Pipfile.lock
 
 docs/_build
