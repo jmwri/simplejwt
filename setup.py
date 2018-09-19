@@ -15,7 +15,6 @@ setup(
     packages=find_packages(),
     version=version,
     license='MIT',
-    python_requires='>=3.6, <4',
     description='A dead simple JWT library',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -31,22 +30,16 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development',
         'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Operating System :: OS Independent',
     ],
-    setup_requires=['pytest-runner'],
     install_requires=[
         'typing',
     ],
-    tests_require=[
-        'pytest',
-    ],
-    extras_require={
-        'test': [
-            'coverage', 'tox', 'pytest', 'sphinx'
-        ]
-    }
 )

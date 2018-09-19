@@ -6,9 +6,10 @@ env:
     secure: kw3cACWYHhcl95/BsIicqnodmshKxn2KIHKoYLBPNGGAdZYTn4Qm1KOBciACyGWMlGn8M0Y46cO0FRgHShs0bNb6IRuxwuEZLwkPUYH4J1DuUp0LTWLYs/J/1y37dNpr8tPh0r38GfVaD9JkjRsTyGEKbDEQPSGQ4CL2PJbTEuZI2Wf39CyNdZtE2a5+Q/z9h7w5LQBylxQcuyoiqO/CU2DKE1e3u5fLL5vvKf9pRQUnAm8Y+B1jMTDLgLzB+o9qT1dOY738a9lv3OhxLcYdaHxcZtgXVbXZRBYqdXRnIDNV6AAlfkPEYQ/fI381pz+b1pcOiFilYOuVfAlICJan9MQ/U9D5+mHALkvdxOo7rKsiRa/Rt7xT3m7izGBlQlNgzF5WWgAfkAoyBJkl/IYf6sjdJJnA+Oz8nFIrSlTlpcga/gCF1kIs5vbQyQ6vhoy8cFOMw1Lt195ZoXMD3kZ0BSvNye88QCm5+qABBe/nxOK05TAo4EZ1d3qNxD7UB8H/nDJaNYZ+1YNBRteCo7MCjNFOJYfKcxkIpD4W2Zz0jXIvYR9Q2FyGlUSETVjRyDeiNdJfycLht8N+iGxylP8lw9fkBOP2ijKUKriOPcstdnXuHTfBvXKEwIXjf8RqQ4ZjG8KH6sQ+X03hAGtVbX69vdDrBpvnn5nMXqD4TJdNGNg=
 language: python
 python:
-- '3.6'
+- 3.6
 install:
-- pip install -e ".[test]"
+- pip install pipenv tox-travis
+- pipenv install --dev .
 before_script:
 - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
   > ./cc-test-reporter
@@ -17,6 +18,7 @@ before_script:
 script:
 - tox
 after_script:
+- coverage report
 - coverage xml
 - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build -t
   "coverage.py" --exit-code $TRAVIS_TEST_RESULT; fi

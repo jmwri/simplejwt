@@ -7,11 +7,18 @@
 # http://www.sphinx-doc.org/en/stable/config
 
 # -- Path setup --------------------------------------------------------------
+import os
+import sys
+import re
+from datetime import datetime
+sys.path.append(os.path.join(os.path.dirname(__file__), "simplejwt"))
+
+now = datetime.utcnow()
+year = now.year
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-import re
 
 with open('../simplejwt/__init__.py') as version_file:
     full_version = re.search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
@@ -20,7 +27,7 @@ with open('../simplejwt/__init__.py') as version_file:
 # -- Project information -----------------------------------------------------
 
 project = 'simplejwt'
-copyright = '2018, Jim Wright'
+copyright = '{year}, Jim Wright'.format(year=year)
 author = 'Jim Wright'
 
 # The short X.Y version
@@ -32,7 +39,7 @@ release = full_version
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -181,4 +188,7 @@ def setup(app):
     app.connect('autodoc-skip-member', skip)
 
 
-autodoc_default_flags = ['show-inheritance']
+autodoc_default_flags = ['show-inheritance']  # Support pre 1.8
+autodoc_default_options = {
+    'show-inheritance': True
+}
